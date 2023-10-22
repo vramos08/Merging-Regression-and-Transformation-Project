@@ -1,0 +1,51 @@
+#set the working  directory
+getwd()
+wdir <- "C:/Users/viann/Desktop/ams_315"
+setwd(wdir)
+
+#merging the two data sets into one
+Pa_IV <- read.csv('284007_IV.csv', header = TRUE)
+Pa_DV <- read.csv('284007_DV.csv', header = TRUE)
+PartA <- merge(Pa_IV, Pa_DV, by = "ID")
+
+#check if there is any missing case in the data set in the second and third (iv, dv)
+any(is.na(PartA[,2])==TRUE)
+any(is.nan(PartA[,2])==TRUE)
+any(is.null(PartA[,2])==TRUE)
+any(is.na(PartA[,3])==TRUE)
+any(is.nan(PartA[,3])==TRUE)
+any(is.null(PartA[,3])==TRUE)
+
+#installing mice
+install.packages('mice')
+PartA_missing <- PartA
+library(mice)
+md.pattern(PartA_missing)
+#there are 577 complete data sets
+#IV missing 75, only IV has complete 33 
+#DV missing 48, only DV has complete 60
+#both missing 15, 
+
+#dropping 15 observations, now 670 data
+PA_imp <- PartA[!is.na(PartA$IV)==TRUE| !is.na(PartA$DV)==TRUE,]
+imp <- mice(PA_imp, method = "norm.boot", printFlag = FALSE)
+PA_comp <- complete(imp)
+md.pattern(PA_comp)
+
+#fitting a regression model
+regmod <- lm(DV ~ IV, data=PA_comp)
+summary(regmod)
+
+#installing a package for knitr
+install.packages('knitr')
+library(knitr)
+kable(anova(regmod), caption = "ANOVA TABLE")
+
+#plotting the data
+plot(PA_comp$DV ~ PA_comp$IV, main = 'Scatter: DV~IV', xlab='IV',ylab='DV', pch=20)
+abline(regmod, col='red', lty=3, lwd=2)
+legend('topleft',legend='Estimated Regression Line',lty=3, lwd=2, col='red')
+
+#calculating the confidence interval of the slop (95%,99%)
+confint(regmod, level=0.95)
+confint(regmod, level=0.99)
