@@ -1,0 +1,36 @@
+#accessing the file
+getwd()
+wdir <- "C:/Users/viann/Desktop/ams_315"
+setwd(wdir)
+
+#making a plot for the data
+PA_B <- read.csv('284007_PartB.csv',header=TRUE)
+mod <- lm(y ~ x, data=PA_B)
+summary(mod)
+plot(PA_B$y ~ PA_B$x, main='Scatter:x ~ y',xlab = 'x', ylab ='y', pch=20)
+abline(mod, col='red',lty=3, lwd=2)
+legend('topleft',legend = 'Estimated Regression Line', lty=3,lwd=2,col='red')
+
+#there is a transformation with y^1/2 as the dependent
+dt <- data.frame(xtrans=PA_B$x, ytrans=PA_B$y^(1/2))
+groups <- cut(dt$xtrans,breaks=c(-Inf,seq(min(dt$xtrans)+0.003, max(dt$xtrans)-0.003,by=0.003),Inf))
+table(groups)
+x <- ave(dt$xtrans, groups)
+bin <- data.frame(x=x, y=dt$ytrans)
+
+#applying the lack of fit test
+install.packages("olsrr")
+library("olsrr")
+fit_b <- lm(y ~ x, data = bin)
+ols_pure_error_anova(fit_b)
+summary(fit_b)
+
+#plotting the new data
+mod2 <- lm(y~x, data=bin)
+plot(bin$y ~ bin$x, main='Scatter:x ~ y^1/2',xlab = 'x',ylab = 'y',pch=20)
+abline(mod2,col='red',lty=3,lwd=2)
+legend('topleft',legend = 'Estimated Regression Line', lty=3,lwd=2,col='red')
+
+#fitting a regression model for this transformed data
+fit_b2 <- lm(ytrans~xtrans, data = dt)
+summary(fit_b2)
