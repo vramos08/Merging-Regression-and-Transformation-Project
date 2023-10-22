@@ -1,1 +1,2 @@
-# Project1-AMS315
+# Project 1 Overview
+This project is composed of two parts. In part A, we focus on merging the two datasets given to us and addressing the missing data. We then are tasked to create a linear regression model to get a relationship between the independent and dependent variables. For part B, the primary task is to analyze a dataset with repeated or nearly repeated data points, requiring data transformation and the application of the lack of fit test.
